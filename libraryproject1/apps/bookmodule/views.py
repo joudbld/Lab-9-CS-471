@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .models import Book, Address, Student
+from .models import Book, Address, Student, Students, Department, Course, Card
 from django.db.models import Q
 
 # Create your views here.
@@ -128,3 +128,39 @@ def task5(request):
 def task7(request):
     cities = Address.objects.annotate(student_count=Count('student'))
     return render(request, 'bookmodule/task7.html', {'cities':cities})
+
+
+
+
+
+def task11(request):
+    departments = Department.objects.annotate(student_count=Count('students'))
+    return render(request, 'bookmodule/task11.html', {'departments':departments})
+
+
+def task22(request):
+    courses = Course.objects.annotate(student_count=Count('students'))
+    return render(request, 'bookmodule/task22.html', {'courses':courses})
+
+
+def task33(request):
+    departments = Department.objects.annotate(oldest_student_id=Min('students__id'))
+    
+    department_data = []
+
+    for department in departments:
+        if department.oldest_student_id is not None:
+            oldest_student = department.students_set.get(id=department.oldest_student_id)
+            department_data.append(
+                {
+                    'department_name': department.name,
+                    'oldest_student_name': oldest_student.name
+                }
+            )
+
+    return render(request, 'bookmodule/task33.html', {'department_data': department_data})
+
+
+def task44(request):
+    departments = Department.objects.annotate(student_count=Count('students')).filter(student_count__gt=2).order_by("-student_count")
+    return render(request, 'bookmodule/task44.html', {'departments':departments})
